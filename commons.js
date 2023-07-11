@@ -1,6 +1,6 @@
 const CONSTANTS = {}
 const FUNCTIONS = {}
-console.log("RUN COMMONS FILE 2")
+console.log("RUN COMMONS FILE 3")
 
 // ------ CONSTANTS ------
 CONSTANTS['LIMIT'] = 100
