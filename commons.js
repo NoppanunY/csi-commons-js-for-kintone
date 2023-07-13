@@ -36,7 +36,7 @@ FUNCTIONS["getRecordsWithProxy"] = (url, header, body) => {
         records = records.concat(record_result)
         offset += limit
       }while(record_result.length == limit)
-      return resolve({'success': true, 'response': records})
+      return resolve({'success': true, 'response': {'records': records}})
     }catch(err){
       return reject({'success': false, 'error': err})
     }
@@ -60,6 +60,7 @@ FUNCTIONS["postRecordWithProxy"] = (url, header, body) => {
 FUNCTIONS["postRecordsWithProxy"] = (url, header, body) => {
   const limit = CONSTANTS.LIMIT
   const ids = []
+  const revisions = []
   return new Promise(async (resolve, reject) => {
     try{
       for(let round=0; round<Math.ceil(body.records.length/limit); round++){
@@ -72,9 +73,12 @@ FUNCTIONS["postRecordsWithProxy"] = (url, header, body) => {
         
         if(JSON.parse(proxy[1]) != 200) return reject({'success': false, 'error': JSON.parse(proxy[0]), 'response': ids})
         
-        ids.push(...JSON.parse(proxy[0]).ids)
+        let res = JSON.parse(proxy[0])
+
+        ids.push(...res.ids)
+        revisions.push(...res.revisions)
       }
-      resolve({'success': true, 'response': ids})
+      resolve({'success': true, 'response': {'ids': ids, 'revisions': revisions}})
     }catch(err){
       return reject({'success': false, 'error': err})
     }
@@ -97,7 +101,8 @@ FUNCTIONS["putRecordWithProxy"] = (url, header, body) => {
 
 FUNCTIONS["putRecordsWithProxy"] = (url, header, body) => {
   const limit = CONSTANTS.LIMIT
-  let records = []
+  const ids = []
+  const revisions = []
   return new Promise(async (resolve, reject) => {
     try{
       for(let round=0; round<Math.ceil(body.records.length/limit); round++){
@@ -108,11 +113,12 @@ FUNCTIONS["putRecordsWithProxy"] = (url, header, body) => {
           'records': body.records.slice(start_index, end_index)
         })
         
-        if(JSON.parse(proxy[1]) != 200) return reject({'success': false, 'error': JSON.parse(proxy[0]), 'response': records})
-        
-        records = records.concat(JSON.parse(proxy[0]).records)
+        if(JSON.parse(proxy[1]) != 200) return reject({'success': false, 'error': JSON.parse(proxy[0]), 'response': {'ids': ids, 'revisions': revisions}})
+        let res = JSON.parse(proxy[0])
+        ids.push(...res.ids)
+        revisions.push(...res.revisions)
       }
-      resolve({'success': true, 'response': records})
+      resolve({'success': true, 'response': {'ids': ids, 'revisions': revisions}})
     }catch(err){
       return reject({'success': false, 'error': err})
     }
@@ -133,7 +139,7 @@ FUNCTIONS["deleteRecordsWithProxy"] = (url, header, body) => {
         // Reject when call api error
         if(JSON.parse(proxy[1]) != 200) return reject({'success': false, 'error': JSON.parse(proxy[0])})
       }
-      return resolve({'success': true})
+      return resolve({'success': true, 'response': {}})
     }catch(err){
       return reject({'success': false, 'error': err})
     }
