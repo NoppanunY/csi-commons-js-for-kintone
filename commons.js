@@ -103,6 +103,7 @@ FUNCTIONS["putRecordsWithProxy"] = (url, header, body) => {
   const limit = CONSTANTS.LIMIT
   const ids = []
   const revisions = []
+  const records = []
   return new Promise(async (resolve, reject) => {
     try{
       for(let round=0; round<Math.ceil(body.records.length/limit); round++){
@@ -113,12 +114,11 @@ FUNCTIONS["putRecordsWithProxy"] = (url, header, body) => {
           'records': body.records.slice(start_index, end_index)
         })
         
-        if(JSON.parse(proxy[1]) != 200) return reject({'success': false, 'error': JSON.parse(proxy[0]), 'response': {'ids': ids, 'revisions': revisions}})
+        if(JSON.parse(proxy[1]) != 200) return reject({'success': false, 'error': JSON.parse(proxy[0]), 'response': {'records': records}})
         let res = JSON.parse(proxy[0])
-        ids.push(...res.ids)
-        revisions.push(...res.revisions)
+        records.push(...res.records)
       }
-      resolve({'success': true, 'response': {'ids': ids, 'revisions': revisions}})
+      resolve({'success': true, 'response': {'records': records}})
     }catch(err){
       return reject({'success': false, 'error': err})
     }
