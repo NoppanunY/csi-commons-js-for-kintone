@@ -183,39 +183,91 @@ FUNCTIONS["showErrorMessage"] = (error) => {
 FUNCTIONS["getErrorsMessageForKintone"] = (error) => {
   let error_result = []
   let code = error.code
-  if(code == "CB_VA01"){
-    for(let [error_key, error_value] of Object.entries(error.errors)){
-      let title_result, text_result
-      title_result = error.message
-      for(let message of error_value.messages){
-        if(message == "Required."){
-          text_result = `The field code (${error_key}) is required field!`
-        }
-        else if(message == "Required field."){
-          text_result = `"${error_key}" is request to call api.`
-        }
-        else{
-          text_result = message
-        }
+  // if(code == "CB_VA01"){
+  //   for(let [error_key, error_value] of Object.entries(error.errors)){
+  //     let title_result, text_result
+  //     title_result = error.message
+  //     for(let message of error_value.messages){
+  //       if(message == "Required."){
+  //         text_result = `The field code (${error_key}) is required field!`
+  //       }
+  //       else if(message == "Required field."){
+  //         text_result = `"${error_key}" is request to call api.`
+  //       }
+  //       else{
+  //         text_result = message
+  //       }
         
-        error_result.push({
-          title: title_result,
-          text: text_result
-        })
+  //       error_result.push({
+  //         title: title_result,
+  //         text: text_result
+  //       })
+  //     }
+  //   }
+  // }
+  // else if(code == "GAIA_AP01"){
+  //   error_result.push({
+  //     title: `App not found!`,
+  //     text: error.message
+  //   })
+  // }
+  // else{
+  //   error_result.push({
+  //     title: "Faile to call api!",
+  //     text: error.message,
+  //   })
+  // }
+
+  switch (code) {
+    // Missing or invalid input.
+    case "CB_VA01":
+      for(let [error_key, error_value] of Object.entries(error.errors)){
+        let title_result, text_result
+        title_result = error.message
+        for(let message of error_value.messages){
+          if(message == "Required."){
+            text_result = `The field code (${error_key}) is required field!`
+          }
+          else if(message == "Required field."){
+            title_result = "API Request Failed!"
+            text_result = `"${error_key}" is request to call api.`
+          }
+          else{
+            text_result = message
+          }
+          
+          error_result.push({
+            title: title_result,
+            text: text_result
+          })
+        }
       }
-    }
+      break
+
+    // App not found
+    case "GAIA_AP01":
+      error_result.push({
+        title: `App not found!`,
+        text: error.message
+      })
+      break
+      
+    // Invalid JSON string.
+    case "CB_IJ01":
+      error_result.push({
+        title: "API Request Failed!",
+        text: error.message,
+      })
+      break
+    
+    // Other Error
+    default:
+      error_result.push({
+        title: "API Request Failed!",
+        text: error.message,
+      })
+      break
   }
-  else if(code == "GAIA_AP01"){
-    error_result.push({
-      title: `App not found!`,
-      text: error.message
-    })
-  }
-  else{
-    error_result.push({
-      title: "Faile to call api!",
-      text: error.message,
-    })
-  }
+
   return error_result
 }
