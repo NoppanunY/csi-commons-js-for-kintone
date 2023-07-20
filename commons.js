@@ -12,7 +12,7 @@ FUNCTIONS["getRecordWithProxy"] = (url, header, body) => {
   return new Promise(async (resolve, reject) => {
     try{
       let proxy_query = `?app=${body.app}&id=${body.id}`
-      let proxy = await kintone.proxy(url + proxy_query, 'GET', header, body)
+      let proxy = await kintone.proxy(url + proxy_query, 'GET', header, {})
       if(JSON.parse(proxy[1]) != 200) return reject({'success': false, 'error': JSON.parse(proxy[0])})
       return resolve({'success': true, 'response': JSON.parse(proxy[0])})
     }catch(err){
@@ -29,8 +29,11 @@ FUNCTIONS["getRecordsWithProxy"] = (url, header, body) => {
     try{
       let record_result = []
       do{
-        let proxy_query = `?app=${body.app}${body.hasOwnProperty('query') && `&query=${encodeURIComponent(body.query)}`}`
-        let proxy = await kintone.proxy(url + proxy_query + encodeURI(` limit ${limit} offset ${offset}`), 'GET', header, body)
+        let app = `?app=${body.app}`
+        let query = `&query=${body.hasOwnProperty('query') && `${encodeURIComponent(body.query)}` || ""}`
+        let offset_query = encodeURI(` limit ${limit} offset ${offset}`)
+        let proxy_query = `${app}${query}${offset_query}`
+        let proxy = await kintone.proxy(url + proxy_query + encodeURI(` limit ${limit} offset ${offset}`), 'GET', header, {})
         if(JSON.parse(proxy[1]) != 200) return reject({'success': false, 'error': JSON.parse(proxy[0])})
         record_result = JSON.parse(proxy[0]).records
         records = records.concat(record_result)
@@ -47,9 +50,7 @@ FUNCTIONS["postRecordWithProxy"] = (url, header, body) => {
   return new Promise(async (resolve, reject) => {
     try{
       let proxy = await kintone.proxy(url, 'POST', header, body)
-
       if(JSON.parse(proxy[1]) != 200) return reject({'success': false, 'error': JSON.parse(proxy[0])})
-
       return resolve({'success': true, 'response': JSON.parse(proxy[0])})
     }catch(err){
       return reject({'success': false, 'error': err})
@@ -70,11 +71,8 @@ FUNCTIONS["postRecordsWithProxy"] = (url, header, body) => {
           'app': body.app,
           'records': body.records.slice(start_index, end_index)
         })
-        
         if(JSON.parse(proxy[1]) != 200) return reject({'success': false, 'error': JSON.parse(proxy[0]), 'response': ids})
-        
         let res = JSON.parse(proxy[0])
-
         ids.push(...res.ids)
         revisions.push(...res.revisions)
       }
@@ -89,9 +87,7 @@ FUNCTIONS["putRecordWithProxy"] = (url, header, body) => {
   return new Promise(async (resolve, reject) => {
     try{
       let proxy = await kintone.proxy(url, 'PUT', header, body)
-
       if(JSON.parse(proxy[1]) != 200) return reject({'success': false, 'error': JSON.parse(proxy[0])})
-
       return resolve({'success': true, 'response': JSON.parse(proxy[0])})
     }catch(err){
       return reject({'success': false, 'error': err})
@@ -101,8 +97,6 @@ FUNCTIONS["putRecordWithProxy"] = (url, header, body) => {
 
 FUNCTIONS["putRecordsWithProxy"] = (url, header, body) => {
   const limit = CONSTANTS.LIMIT
-  const ids = []
-  const revisions = []
   const records = []
   return new Promise(async (resolve, reject) => {
     try{
@@ -113,7 +107,6 @@ FUNCTIONS["putRecordsWithProxy"] = (url, header, body) => {
           'app': body.app,
           'records': body.records.slice(start_index, end_index)
         })
-        
         if(JSON.parse(proxy[1]) != 200) return reject({'success': false, 'error': JSON.parse(proxy[0]), 'response': {'records': records}})
         let res = JSON.parse(proxy[0])
         records.push(...res.records)
@@ -135,8 +128,6 @@ FUNCTIONS["deleteRecordsWithProxy"] = (url, header, body) => {
         let ids_offest  = body.ids.slice(start_index, end_index).map((item, index) => `ids[${index}]=${item}`).join('&')
         let proxy_query = `?app=${body.app}&${ids_offest}`
         let proxy = await kintone.proxy(url + proxy_query, 'DELETE', header, {})
-        
-        // Reject when call api error
         if(JSON.parse(proxy[1]) != 200) return reject({'success': false, 'error': JSON.parse(proxy[0])})
       }
       return resolve({'success': true, 'response': {}})
@@ -171,7 +162,7 @@ FUNCTIONS["showErrorMessage"] = (error) => {
   }
   else{
     icon = CONSTANTS.ICON_ERROR
-    title = "Syntax Error"
+    title = "Syntax Error."
     text = error.message
   }
   
@@ -183,40 +174,6 @@ FUNCTIONS["showErrorMessage"] = (error) => {
 FUNCTIONS["getErrorsMessageForKintone"] = (error) => {
   let error_result = []
   let code = error.code
-  // if(code == "CB_VA01"){
-  //   for(let [error_key, error_value] of Object.entries(error.errors)){
-  //     let title_result, text_result
-  //     title_result = error.message
-  //     for(let message of error_value.messages){
-  //       if(message == "Required."){
-  //         text_result = `The field code (${error_key}) is required field!`
-  //       }
-  //       else if(message == "Required field."){
-  //         text_result = `"${error_key}" is request to call api.`
-  //       }
-  //       else{
-  //         text_result = message
-  //       }
-        
-  //       error_result.push({
-  //         title: title_result,
-  //         text: text_result
-  //       })
-  //     }
-  //   }
-  // }
-  // else if(code == "GAIA_AP01"){
-  //   error_result.push({
-  //     title: `App not found!`,
-  //     text: error.message
-  //   })
-  // }
-  // else{
-  //   error_result.push({
-  //     title: "Faile to call api!",
-  //     text: error.message,
-  //   })
-  // }
 
   switch (code) {
     // Missing or invalid input.
