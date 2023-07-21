@@ -33,7 +33,7 @@ FUNCTIONS["getRecordsWithProxy"] = (url, header, body) => {
         let query = `&query=${body.hasOwnProperty('query') && `${encodeURIComponent(body.query)}` || ""}`
         let offset_query = encodeURI(` limit ${limit} offset ${offset}`)
         let proxy_query = `${app}${query}${offset_query}`
-        let proxy = await kintone.proxy(url + proxy_query + encodeURI(` limit ${limit} offset ${offset}`), 'GET', header, {})
+        let proxy = await kintone.proxy(url + proxy_query, 'GET', header, {})
         if(JSON.parse(proxy[1]) != 200) return reject({'success': false, 'error': JSON.parse(proxy[0])})
         record_result = JSON.parse(proxy[0]).records
         records = records.concat(record_result)
