@@ -1,5 +1,8 @@
 const CONSTANTS = {}
-CONSTANTS["LIMIT"] = 100
+CONSTANTS["GET_LIMIT"] = 500
+CONSTANTS["CREATE_LIMIT"] = 100
+CONSTANTS["UPDATE_LIMIT"] = 100
+CONSTANTS["DELETE_LIMIT"] = 100
 CONSTANTS["ICON_SUCCESS"] = "success"
 CONSTANTS["ICON_ERROR"] = "error"
 CONSTANTS["ICON_WARNING"] = "warning"
@@ -23,7 +26,7 @@ FUNCTIONS["getRecordWithProxy"] = (url, header, body) => {
 
 FUNCTIONS["getRecordsWithProxy"] = (url, header, body) => {
   let offset = 0
-  let limit = CONSTANTS.LIMIT
+  let limit = CONSTANTS.GET_LIMIT
   let records = []
   return new Promise(async (resolve, reject) => {
     try{
@@ -59,7 +62,7 @@ FUNCTIONS["postRecordWithProxy"] = (url, header, body) => {
 }
 
 FUNCTIONS["postRecordsWithProxy"] = (url, header, body) => {
-  const limit = CONSTANTS.LIMIT
+  const limit = CONSTANTS.CREATE_LIMIT
   const ids = []
   const revisions = []
   return new Promise(async (resolve, reject) => {
@@ -96,7 +99,7 @@ FUNCTIONS["putRecordWithProxy"] = (url, header, body) => {
 }
 
 FUNCTIONS["putRecordsWithProxy"] = (url, header, body) => {
-  const limit = CONSTANTS.LIMIT
+  const limit = CONSTANTS.UPDATE_LIMIT
   const records = []
   return new Promise(async (resolve, reject) => {
     try{
@@ -119,7 +122,7 @@ FUNCTIONS["putRecordsWithProxy"] = (url, header, body) => {
 }
 
 FUNCTIONS["deleteRecordsWithProxy"] = (url, header, body) => {
-  const limit = CONSTANTS.LIMIT
+  const limit = CONSTANTS.DELETE_LIMIT
   return new Promise(async (resolve, reject) => {
     try{
       for(let round=0; round<Math.ceil(body.ids.length/limit); round++){
