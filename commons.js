@@ -165,7 +165,7 @@ FUNCTIONS["showErrorMessage"] = (error) => {
   }
   else{
     icon = CONSTANTS.ICON_ERROR
-    title = "Syntax Error."
+    title = "System Exception. Please contact system administrator."
     text = error.message
   }
   
